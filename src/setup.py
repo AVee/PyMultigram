@@ -1,6 +1,6 @@
 import setuptools
 
-with open("README.md", "r") as fh:
+with open("../README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
@@ -15,7 +15,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: Apache License",
+        "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
