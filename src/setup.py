@@ -21,5 +21,7 @@ setuptools.setup(
         'Intended Audience :: Developers',
     ],
     keywords='telegram pyrogram',
-    install_requires=['pyrogram>=0.8']
+    install_requires=['pyrogram>=0.8'],
+    test_suite='tests',
+    tests_require=['pytest'],
 )

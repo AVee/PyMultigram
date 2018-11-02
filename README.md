@@ -14,7 +14,7 @@ within the same application.
 The basic flow is to create instances of handler classes and Pyrogram clients. Then on each of the handler classes call 
 set_clients() to assign (a selection of) the clients to that handler.
 
-Once the clients are started messages should start to flow into the methods decorated with @multigram.on_message()  
+Once the clients are started messages should start to flow into the methods decorated with `@multigram.on_message()`. This decorator is a drop in replacement for the `on_message()` in pyrogram. It adds one named parameter `scope` which may contain a callable to filter clients. You can use the presets `multigram.ALL`, `multigram.BOTS` or `multigram.USERS` (with ALL being the default value), or pass your own client filtering method.
 
 ## TODO ##
 - Build a pip package and publish to PyPi

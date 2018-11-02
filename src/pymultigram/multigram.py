@@ -8,10 +8,14 @@ import pyrogram
 import types
 from typing import Iterable
 from pyrogram.client.handlers.message_handler import MessageHandler
+from functools import partial
 
-ALL=-1
-BOTS=-2
-USERS=-3
+ALL=lambda client: True
+BOTS=lambda client: is_bot(client)
+USERS=lambda client: not is_bot(client)
+
+def is_bot(client):
+    return client.bot_token or pyrogram.Client.BOT_TOKEN_RE.match(client.session_name)
 
 class OnMessageDecorator(object):
     '''
@@ -34,9 +38,11 @@ class OnMessageDecorator(object):
     def wrapper(self, func):
         self._func = func
         return self
-        
-    def __call__(self, *args, **kwargs):
-        return self._func(self, *args, **kwargs)
+            
+    def __get__(self, instance, owner):
+        func = partial(self._func, instance)
+        func.multigram_onmessagedecorator = self
+        return func
        
 def on_message(scope=ALL, filters=None, group: int = 0):
     '''
@@ -65,28 +71,49 @@ class MultiHandler(object):
         Constructor
         '''
         super().__init__()
-        self._clients: int = None
-        self._bots = None
-        self._users = None
+        self._clients = []
+        self._bots = []
+        self._users = []
+        self._handlers = [getattr(self, handler) for handler in dir(self) if hasattr(getattr(self, handler), 'multigram_onmessagedecorator')]
+        self._active_handlers = {}
         
     def set_clients(self, clients : Iterable[pyrogram.Client]):
-        self._clients = clients
-        self._bots = (client for client in clients if pyrogram.Client.BOT_TOKEN_RE.match(client.session_name))
-        self._users = (client for client in clients if not pyrogram.Client.BOT_TOKEN_RE.match(client.session_name))
+        for client in clients:
+            self.add_client(client)
+    
+    def add_client(self, client: pyrogram.Client):
+        if not client in self._clients:
+            self._clients.append(client)
+            
+        if is_bot(client):
+            if not client in self._bots:
+                self._bots.append(client)
+        else:
+            if not client in self._users:
+                self._users.append(client)
+                
+        for decorator in self._handlers:
+            if decorator.multigram_onmessagedecorator._scope(client):
+                handler_ref = client.add_handler(MessageHandler(decorator, decorator.multigram_onmessagedecorator._filters), decorator.multigram_onmessagedecorator._group)
+                if not self._active_handlers.__contains__(client):
+                    self._active_handlers[client] = []
+                self._active_handlers[client].append(handler_ref)
 
-        handlers = (getattr(self, handler) for handler in dir(self) if isinstance(getattr(self, handler), OnMessageDecorator))
+    def remove_all_clients(self):
+        for client in self._clients:
+            self.remove_client(client)
+                
+    def remove_client(self, client: pyrogram.Client):
+        if self._active_handlers.__contains__(client):
+            for handler_ref in self._active_handlers[client]:
+                client.remove_handler(handler_ref)
         
-        for handler in handlers:
-            if callable(handler._scope):
-                applies_to = handler._scope()
-            elif isinstance(handler._scope, Iterable):
-                applies_to = handler._scope
-            elif handler._scope == BOTS:
-                applies_to = self._bots
-            elif handler._scope == USERS:
-                applies_to = self._users
-            elif handler._scope == ALL:
-                applies_to = self._clients
-             
-            for client in applies_to:
-                client.add_handler(MessageHandler(handler, handler._filters), handler._group)
+        if not client in self._clients:
+            self._clients.append(client)
+            
+        if is_bot(client):
+            if not client in self._bots:
+                self._bots.append(client)
+        else:
+            if not client in self._users:
+                self._users.append(client)
