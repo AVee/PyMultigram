@@ -1,11 +1,11 @@
 import setuptools
 
-with open("README.md", "r") as fh:
+with open("../README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="PyMultigram",
-    version="0.0.1",
+    version="0.0.2",
     author="AVee",
     author_email="pymultigram@avee.org",
     description="Framework for multi-client Pyrogram programs with flexible plugin support.",
@@ -15,11 +15,13 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: Apache License",
+        "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
     ],
     keywords='telegram pyrogram',
-    install_requires=['pyrogram>=0.8']
+    install_requires=['pyrogram>=0.8'],
+    test_suite='tests',
+    tests_require=['pytest'],
 )
