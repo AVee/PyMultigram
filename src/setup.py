@@ -5,7 +5,7 @@ with open("../README.md", "r") as fh:
 
 setuptools.setup(
     name="PyMultigram",
-    version="0.0.3",
+    version="0.0.4",
     author="AVee",
     author_email="pymultigram@avee.org",
     description="Framework for multi-client Pyrogram programs with flexible plugin support.",
@@ -21,7 +21,7 @@ setuptools.setup(
         'Intended Audience :: Developers',
     ],
     keywords='telegram pyrogram',
-    install_requires=['pyrogram>=0.8'],
+    install_requires=['pyrogram>=0.16'],
     test_suite='tests',
     tests_require=['pytest'],
 )

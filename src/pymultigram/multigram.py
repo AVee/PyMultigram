@@ -9,13 +9,14 @@ import types
 from typing import Iterable
 from pyrogram.client.handlers.message_handler import MessageHandler
 from functools import partial
+from pyrogram.client.client import Client
 
 ALL=lambda client: True
 BOTS=lambda client: is_bot(client)
 USERS=lambda client: not is_bot(client)
 
-def is_bot(client):
-    return client.bot_token or pyrogram.Client.BOT_TOKEN_RE.match(client.session_name)
+def is_bot(client: Client):
+    return client.bot_token #or client. pyrogram.Client.BOT_TOKEN_RE.match(client.session_name)
 
 class OnMessageDecorator(object):
     '''
